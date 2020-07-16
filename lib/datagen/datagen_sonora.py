@@ -10,9 +10,8 @@ def process_data(cfile, data_dir, preserve=True):
     
     for s in config:
         conf = config[s]
-        # TODO:
-        # Fix loc_dir path issue either through loc_dir 
-        loc_dir = os.path.join(str(conf['indir'], '')
+
+        loc_dir = os.path.join(conf['indir'], '')
         if not os.path.isabs(loc_dir):
             os.path.join(os.path.abspath(cfile).rsplit(os.sep, 1)[0], 
                             loc_dir)
@@ -31,27 +30,36 @@ def process_data(cfile, data_dir, preserve=True):
         if conf.getboolean('read_all') == True:
             files = glob.glob(data_dir + '/**/*.0', recursive = True) 
             # Runs through all binary files and reads them recursively if they are located in subfolders.
-            stack = np.empty((conf.getint('cases'), conf.getint('parameters')), dtype='f')
+            # As of right now the parameters are included in the config file as a magic number, 
+            # but they should be read by the given file and input later. 
+            teststack = np.zeros((conf.getint('cases'), conf.getint('parameters')), dtype='f')
+            validstack = np.zeros((conf.getint('cases'), conf.getint('parameters')), dtype='f')
+            trainstack = np.zeros((conf.getint('cases'), conf.getint('parameters')), dtype='f')
 
             for n, file in enumerate(files):
+
+                # Returns the 2D array as well if it was needed for something...
                 datarr, datslice = read_file(conf, file)
-                # If there has been x number of cases iterations then declare stack
-                if n == conf.getint('cases'):
-                    # generate a large 2d array that will be filled with cases.
-                    stack = np.array((conf.getint('cases'), len(datslice)), dtype='f')
-                    break
+                # If there has been x number of cases iterations then save file
+
+                if n % conf.getint('cases') == 0:
+                    # Save each individual array after m cases to its correct subdirectory.
+                    np.save(train_dir + os.path.basename(file) + 'wav', trainstack)
+                    np.save(valid_dir + os.path.basename(file) + 'wav', validstack)
+                    np.save(test_dir + os.path.basename(file) + 'wav', teststack)
+
+                    # Empty previous values
+                    trainstack.fill(0)
+                    validstack.fill(0)
+                    teststack.fill(0)
                 
                 if   n < ntr:
-                    np.append()
-                    np.save(train_dir + os.path.basename(file), datarr)
+                    trainstack[:n % conf.getint('cases')] = datslice
                 elif n < ntr + nval:
-                    np.save(valid_dir + os.path.basename(file) + 'wav', datslice)
-                    np.save(valid_dir + os.path.basename(file), datarr)
+                    validstack[:n % conf.getint('cases')] = datslice
                 elif n < ntr + nval + ntest:
-                    np.save(test_dir + os.path.basename(file) + 'wav', datslice)
-                    # np.append(stack, datslice)
+                    teststack[:n % conf.getint('cases')] = datslice
                 
-                # np.save()
         # Test on one individual file
         elif conf.getboolean('read_all') == False:
             np.save(data_dir + conf['file'], read_file(conf['file']))
@@ -85,8 +93,8 @@ def read_file(conf, file):
 
     return(data_arr, dat1d_whead)
 
-cfile = os.path.join(os.path.dirname(__file__), "SONORA.cfg")
-data_dir = os.path.join(os.getcwd(), "./spectra/sp_t200g10nc_m0.0/")
-process_data(cfile, data_dir)
+# cfile = os.path.join(os.path.dirname(__file__), "SONORA.cfg")
+# data_dir = os.path.join(os.getcwd(), "./spectra/sp_t200g10nc_m0.0/")
+# process_data(cfile, data_dir)
 
 # %%
