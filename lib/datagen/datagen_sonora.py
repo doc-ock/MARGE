@@ -32,9 +32,9 @@ def process_data(cfile, data_dir, preserve=True):
             # Runs through all binary files and reads them recursively if they are located in subfolders.
             # As of right now the parameters are included in the config file as a magic number, 
             # but they should be read by the given file and input later. 
-            teststack = np.zeros((conf.getint('cases'), conf.getint('parameters')), dtype='f')
-            validstack = np.zeros((conf.getint('cases'), conf.getint('parameters')), dtype='f')
-            trainstack = np.zeros((conf.getint('cases'), conf.getint('parameters')), dtype='f')
+            teststack = np.zeros((conf.getint('cases'), conf.getint('parameters')+1), dtype='f')
+            validstack = np.zeros((conf.getint('cases'), conf.getint('parameters')+1), dtype='f')
+            trainstack = np.zeros((conf.getint('cases'), conf.getint('parameters')+1), dtype='f')
 
             for n, file in enumerate(files):
 
