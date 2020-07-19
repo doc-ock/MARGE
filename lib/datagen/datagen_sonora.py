@@ -18,9 +18,10 @@ def process_data(cfile, data_dir, preserve=True):
 
         if not os.path.isabs(data_dir):
             data_dir = os.path.join(loc_dir, data_dir)
-            train_dir = os.path.join(data_dir, 'train', '')
-            valid_dir = os.path.join(data_dir, 'valid', '')
-            test_dir  = os.path.join(data_dir, 'test' , '')
+        
+        train_dir = os.path.join(data_dir, 'train', '')
+        valid_dir = os.path.join(data_dir, 'valid', '')
+        test_dir  = os.path.join(data_dir, 'test' , '')
 
         num = os.listdir(loc_dir)
         ntest = max(np.floor(len(num) * 0.1), 1)
